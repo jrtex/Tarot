@@ -1,4 +1,8 @@
 
+French Tarot
+------------
+
+
 This is a java implementation of the French Tarot game.
 For rules, check wikipedia.
 
