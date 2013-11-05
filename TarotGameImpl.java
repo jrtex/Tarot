@@ -21,7 +21,7 @@ public class TarotGameImpl extends java.util.Observable implements TarotGame, ja
 	private List<TarotCard> chien;
 
 	private Contract contract;
-	
+
 	private Fold currentFold;
 
 
@@ -78,43 +78,10 @@ public class TarotGameImpl extends java.util.Observable implements TarotGame, ja
 	public Fold getCurrentFold(){
 		return currentFold;
 	}
-	
+
 
 
 	// TarotGame methods
-	
-	// Previous implementation
-	/*public void playCard(PlayedCard card){
-		if (currentFold == null)
-			currentFold = new Fold();
-		else if (currentFold.isFull())
-			throw new RuntimeException("Fold is full, card cannot be played");
-		
-		
-		currentFold.addCard(card);
-		card.getPlayer().removeCard( card.getCard() );
-		
-		if (currentFold.isFull()){
-			whoseTurn = currentFold.getWinner();
-
-
-		for (PlayedCard c: currentFold.getFold()){
-
-				if (c.getRank() == 0){
-					TarotCard replacement = c.getPlayer().replaceExcuse(c.getCard() );
-					if (replacement != null);
-						whoseTurn.addToStash(replacement);
-				}
-				else{
-					whoseTurn.addToStash(c.getCard());
-				}
-		}
-
-		currentFold = new Fold();
-		}
-	}*/
-	
-	
 	public void playCard(PlayedCard card) throws ExcuseException{
 		if (currentFold == null)
 			currentFold = new Fold();
@@ -128,24 +95,63 @@ public class TarotGameImpl extends java.util.Observable implements TarotGame, ja
 
 		// Send cards to stash once fold is full
 		if (currentFold.isFull()){
-						
+
 			whoseTurn = currentFold.getWinner();
-			
+
 			for (PlayedCard c: currentFold.getFold()){
-				
+
 				if (c.getRank() == 0){
-					// Send excuse to its owner
-					c.getPlayer().addToStash( c.getCard() );
-					c.getPlayer().setOwed(whoseTurn);
+					// Provide Behavious for excuse
 					
-				}
-				else
+					if (c.getPlayer().getCards().size() == 0) {
+						// Excuse Played last:
+						
+						
+						// Played by losing side, send to winner anyway
+						if ( (c.getPlayer() == contract.getPlayer() && whoseTurn != contract.getPlayer())
+								|| c.getPlayer() != contract.getPlayer() && whoseTurn == contract.getPlayer()){
+							whoseTurn.addToStash( c.getCard() );
+						}
+
+						// Played by winnin side, send to contractor 
+						else if (c.getPlayer() != contract.getPlayer() && whoseTurn != contract.getPlayer() ){
+							contract.getPlayer().addToStash( c.getCard() );
+							whoseTurn.addToStash( contract.getPlayer().takeLowValueCard() );
+						}
+						else {
+							throw new RuntimeException("I didn't think this scenario was possible, sorry");
+						}
+						
+						/*else if (c.getPlayer() != contract.getPlayer()) {
+							contract.getPlayer().addToStash( c.getCard() );
+							c.getPlayer().addToStash(contract.getPlayer().takeLowValueCard());
+						} else {
+
+							Player next = switchTurn(contract.getPlayer());
+							
+							while (true){
+								next.addToStash( c.getCard() );
+								try {
+									contract.getPlayer().addToStash( next.takeLowValueCard() );
+									break;
+								} catch (ExcuseException e){ next = switchTurn(next); }
+							}
+							
+						}*/
+
+					} else {
+
+						// Legal excuse move, send to Owner
+						c.getPlayer().addToStash( c.getCard() );
+						c.getPlayer().setOwed(whoseTurn);
+					}
+
+				} else // Regular card
 					whoseTurn.addToStash( c.getCard() );
-				
 			}
-			
+
 			currentFold = new Fold();
-			
+
 			if (whoseTurn.owesTo() != null){
 				TarotCard repl = whoseTurn.takeLowValueCard();
 				whoseTurn.owesTo().addToStash(repl);
@@ -154,24 +160,17 @@ public class TarotGameImpl extends java.util.Observable implements TarotGame, ja
 		}
 	}
 
+	
+	// Other Methods
 
 
 	public void switchTurn(){
 		whoseTurn = switchTurn(whoseTurn);
-		
-		/*if (whoseTurn == south)
-			whoseTurn = west;
-		else if (whoseTurn == west)
-			whoseTurn = north;
-		else if (whoseTurn == north)
-			whoseTurn = east;
-		else
-			whoseTurn = south;*/
 	}
-	
-	
+
+
 	public Player switchTurn(Player p){
-		
+
 		if (p == south)
 			p = west;
 		else if (p == west)
@@ -182,8 +181,8 @@ public class TarotGameImpl extends java.util.Observable implements TarotGame, ja
 			p = south;
 		return p;
 	}
-	
-	
+
+
 	public void nextPhase(){
 		if (status == TarotGame.Status.CONTRACT)
 			status = TarotGame.Status.CHIEN;
@@ -196,11 +195,11 @@ public class TarotGameImpl extends java.util.Observable implements TarotGame, ja
 			update(this, null);
 		}
 	}
-	
-	
+
+
 	private int calcPoints(Player p){
 		int score;
-		
+
 		if (p == contract.getPlayer()){
 			if (p.countScore() > contract.pointsNeeded() )
 				score = (25 + (p.countScore() - contract.pointsNeeded())) * contract.getMultiplier() * 3;
@@ -211,46 +210,51 @@ public class TarotGameImpl extends java.util.Observable implements TarotGame, ja
 				score = (25 + (contract.getPlayer().countScore() - contract.pointsNeeded())) * contract.getMultiplier();
 			else
 				score = -(25 + (contract.getPlayer().countScore() - contract.pointsNeeded())) * contract.getMultiplier();
-		
+
 		return score;
 	}
-	
-	
+
+
 	public void redistribute() {
 		
+		// Remove All cards from stacks
 		if (status == TarotGame.Status.CONTRACT)
 			deck.addCards(east.takeAllCards(), south.takeAllCards(), west.takeAllCards(), north.takeAllCards(), chien );
 		else if (status == TarotGame.Status.DONE){
-			
+
 			east.setScore( calcPoints(east) );
 			south.setScore( calcPoints(south) );
 			west.setScore( calcPoints(west) );
 			north.setScore( calcPoints(north) );
-			
+
 			deck.addCards(east.takeStash(), south.takeStash(), west.takeStash(), north.takeStash(), chien);
 		}
-		
-		chien.removeAll(chien);
-		
-		deck.cut( 1 + (int)(Math.random() * ((78 - 1) + 1)) );
 
+		chien.removeAll(chien);
+
+		// Reset Contract
+		contract = null;
+		status = TarotGame.Status.CONTRACT;
+		
+		// Distribute
+		deck.cut( 1 + (int)(Math.random() * ((78 - 1) + 1)) );
+		
 		dealer = switchTurn(dealer);
 		whoseTurn = dealer;
 		deck.distribute(dealer);
-		
-		// System.out.println(getWhoseTurn());
+
 		
 		east.orderHand();
 		south.orderHand();
 		west.orderHand();
 		north.orderHand();
-		
-		status = TarotGame.Status.CONTRACT;
+
 		switchTurn();
-		
+
 		update(this, this);
 	}
 	
+
 	public void update(Observable o, Object obj){
 		setChanged();
 		notifyObservers(obj);

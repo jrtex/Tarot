@@ -4,6 +4,7 @@ public class Contract {
 
 	private int multiplier;
 	private Player player;
+	private TarotGame game;
 
 	public static final int Pass = 0;
 	public static final int Simple = 1;
@@ -12,9 +13,10 @@ public class Contract {
 	public static final int Against = 6;
 
 	
-	public Contract(Player p, int m){
+	public Contract(Player p, int m, TarotGame game){
 		this.multiplier = m;
 		this.player = p;
+		this.game = game;
 	}
 
 
@@ -57,6 +59,12 @@ public class Contract {
 		}
 		for (TarotCard card: player.getStash() ){
 			if ( card.getSuit() == TarotCard.Suit.ATOUT &&
+					(card.getRank() == 0 || card.getRank() == 1 || card.getRank() == 21) )
+				bout++;
+		}
+		for (PlayedCard card: game.getCurrentFold().getFold()){
+			if (card.getPlayer() == player &&
+					card.getSuit() == TarotCard.Suit.ATOUT &&
 					(card.getRank() == 0 || card.getRank() == 1 || card.getRank() == 21) )
 				bout++;
 		}

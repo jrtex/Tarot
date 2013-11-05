@@ -24,11 +24,11 @@ public class SelectContractPanel extends JPanel{
 	private JPanel drawPanel(){
 		JPanel p = new JPanel( new GridLayout(3,2) );
 		
-		Contract c0 = new Contract(player, 0);
-		Contract c1 = new Contract(player, 1);
-		Contract c2 = new Contract(player, 2);
-		Contract c3 = new Contract(player, 4);
-		Contract c4 = new Contract(player, 6);
+		Contract c0 = new Contract(player, 0, view.getGame());
+		Contract c1 = new Contract(player, 1, view.getGame());
+		Contract c2 = new Contract(player, 2, view.getGame());
+		Contract c3 = new Contract(player, 4, view.getGame());
+		Contract c4 = new Contract(player, 6, view.getGame());
 		
 		ContractPanel p0 = new ContractPanel(c0);
 		ContractPanel p1 = new ContractPanel(c1);

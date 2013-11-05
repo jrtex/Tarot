@@ -104,7 +104,7 @@ public class TarotView extends JPanel implements ActionListener, java.util.Obser
 	
 	private JPanel endPanel(){
 		
-		JPanel panel = new JPanel(new GridLayout(2,1));
+		JPanel panel = new JPanel(new GridLayout(3,1));
 		
 		int diff = (game.getContract().pointsNeeded() - game.getContract().getPlayer().getPoints());
 		
@@ -112,6 +112,8 @@ public class TarotView extends JPanel implements ActionListener, java.util.Obser
 			panel.add(new JLabel(game.getContract().getPlayer() + " won the game by " + diff + " points."));
 		else
 			panel.add(new JLabel(game.getContract().getPlayer() + " lost the game by " + diff + " points."));
+		
+		panel.add(new JLabel( game.getContract().getPlayer().getPoints() + " / " + game.getContract().pointsNeeded()) );
 		
 		JLabel restartButton = new JLabel("Restart");
 		restartButton.addMouseListener(this);

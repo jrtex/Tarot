@@ -1,5 +1,6 @@
 package v05;
 
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
@@ -14,7 +15,8 @@ public class FoldPanel extends JPanel {
 		this.fold = game.getCurrentFold();
 		
 		
-		setLayout(new GridBagLayout());
+		// setLayout(new GridBagLayout());
+		setLayout(new FlowLayout());
 		GridBagConstraints e = new GridBagConstraints();
 		GridBagConstraints s = new GridBagConstraints();
 		GridBagConstraints w = new GridBagConstraints();
@@ -35,6 +37,11 @@ public class FoldPanel extends JPanel {
 		
 		for (PlayedCard card: fold.getFold()){
 			CardLabel label = new CardLabel(card);
+			add(label);
+		}
+		
+		/*for (PlayedCard card: fold.getFold()){
+			CardLabel label = new CardLabel(card);
 			
 			if (card.getPlayer() == game.getP4())
 				add(label, n);
@@ -44,7 +51,7 @@ public class FoldPanel extends JPanel {
 				add(label, e);
 			else
 				add(label, s);
-		}
+		}*/
 
 	}
 	

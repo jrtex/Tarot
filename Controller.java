@@ -3,7 +3,6 @@ package v05;
 
 public class Controller extends java.util.Observable implements TarotListener{
 	
-	
 	private TarotGame game;
 	private TarotView view;
 	
